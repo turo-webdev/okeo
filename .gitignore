@@ -1,0 +1,14 @@
+node_modules/
+.svelte-kit/
+.wrangler/
+.cloudflare/
+build/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.log
+.DS_Store

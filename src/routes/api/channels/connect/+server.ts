@@ -1,0 +1,112 @@
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import { assertApiOrgMember, parseValidatedBody, requireApiSession } from '$lib/server/auth';
+import { isOrganizationSubscriptionBlocked } from '$lib/server/billing/plans';
+import { getOAuthStateSecret, signOAuthState } from '$lib/server/channels/state';
+import { getChannelProvider, isZernioConfigured } from '$lib/server/channels/zernio';
+import {
+	listWorkspaceChannels,
+	updateOrganizationZernioProfileId
+} from '$lib/server/crm/repository';
+import { channelActionSchema } from '$lib/validation/schemas';
+
+export const POST: RequestHandler = async (event) => {
+	const user = await requireApiSession(event);
+	const body = await parseValidatedBody(event.request, channelActionSchema);
+	const { org } = await assertApiOrgMember(event, body.organizationId, user.id, 'admin');
+
+	if (isOrganizationSubscriptionBlocked(org)) {
+		return json(
+			{
+				error: 'Tu trial o suscripción requiere regularización antes de conectar canales.',
+				code: 'SUBSCRIPTION_INACTIVE'
+			},
+			{ status: 402 }
+		);
+	}
+
+	const channels = await listWorkspaceChannels(org.id, event.locals);
+	const existingChannel = body.channelId
+		? channels.find((c) => c.id === body.channelId)
+		: undefined;
+	if (body.channelId && !existingChannel) {
+		return json({ error: 'Canal no encontrado en este workspace' }, { status: 404 });
+	}
+
+	const activeCount = channels.filter((c) => c.status === 'active').length;
+	const needsNewSlot = !existingChannel || existingChannel.status !== 'active';
+	if (needsNewSlot && activeCount >= org.channel_slots) {
+		return json(
+			{ error: 'Alcanzaste el límite de canales contratados.', code: 'CHANNEL_SLOTS_FULL' },
+			{ status: 403 }
+		);
+	}
+
+	const liveMode = isZernioConfigured();
+	const provider = getChannelProvider();
+
+	let stateSecret: string;
+	try {
+		stateSecret = getOAuthStateSecret();
+	} catch (err) {
+		return json(
+			{ error: err instanceof Error ? err.message : 'Falta OAUTH_STATE_SECRET' },
+			{ status: 503 }
+		);
+	}
+
+	let profileId = org.zernio_profile_id;
+	if (liveMode && (!profileId || profileId.startsWith('zernio_prof_'))) {
+		try {
+			const created = await provider.createProfile(org.name);
+			profileId = created.profileId;
+			await updateOrganizationZernioProfileId(org.id, profileId, event.locals);
+		} catch (err) {
+			return json(
+				{
+					error:
+						err instanceof Error
+							? `No se pudo crear el perfil en Zernio: ${err.message}`
+							: 'No se pudo inicializar el perfil en Zernio'
+				},
+				{ status: 502 }
+			);
+		}
+	}
+
+	const platform = body.platform ?? existingChannel?.platform ?? 'whatsapp';
+	const state = await signOAuthState(
+		{
+			organizationId: org.id,
+			userId: user.id,
+			platform,
+			channelId: existingChannel?.id,
+			nonce: crypto.randomUUID(),
+			exp: Date.now() + 10 * 60_000
+		},
+		stateSecret
+	);
+
+	try {
+		const redirectUri = `${event.url.origin}/api/channels/connect/callback?state=${encodeURIComponent(state)}`;
+		const { authUrl } = await provider.getConnectUrl({
+			profileId,
+			platform,
+			redirectUri,
+			state,
+			reconnectAccountId: existingChannel?.external_account_id
+		});
+
+		return json({ ok: true, authUrl, mode: liveMode ? 'zernio' : 'mock' });
+	} catch (err) {
+		return json(
+			{
+				error:
+					err instanceof Error
+						? `No se pudo obtener el enlace de conexión en Zernio: ${err.message}`
+						: 'Error al generar URL de conexión en Zernio'
+			},
+			{ status: 502 }
+		);
+	}
+};

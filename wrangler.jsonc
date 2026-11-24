@@ -1,0 +1,18 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "okeo",
+	"main": "workers/entry.ts",
+	"compatibility_date": "2025-11-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"queues": {
+		"producers": [{ "binding": "AI_JOBS", "queue": "okeo-ai-jobs" }],
+		"consumers": [{ "queue": "okeo-ai-jobs", "max_batch_size": 5, "max_retries": 3 }]
+	},
+	"triggers": {
+		"crons": ["0 6 * * *"]
+	}
+}
