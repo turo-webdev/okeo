@@ -23,7 +23,7 @@
 
 <div class="flex min-h-dvh flex-col bg-canvas px-6 py-7 text-ink sm:px-10">
 	<header class="flex items-center justify-between">
-		<a href="/"><BrandLogo /></a>
+		<a href={data.marketingHomeUrl}><BrandLogo /></a>
 		<div class="flex flex-wrap gap-2 text-xs text-ink-muted">
 			<span>Estados:</span>
 			<a href="/invite/valid" class="hover:text-ink {data.token === 'valid' ? 'font-medium text-ink underline' : ''}">Válida</a>

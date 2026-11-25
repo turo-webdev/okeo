@@ -3,6 +3,7 @@
 	import ModalDialog from '$lib/components/ui/ModalDialog.svelte';
 	import { ArrowRight, Play, Sparkles } from 'lucide-svelte';
 
+	let { data } = $props();
 	let videoModalOpen = $state(false);
 </script>
 
@@ -25,11 +26,11 @@
 			</nav>
 
 			<div class="flex items-center gap-4">
-				<a href="/login" class="hidden text-sm text-ink-secondary hover:text-ink sm:inline-block">
+				<a href="{data.appOriginPrefix}/login" class="hidden text-sm text-ink-secondary hover:text-ink sm:inline-block">
 					Iniciar sesión
 				</a>
 				<a
-					href="/onboarding"
+					href="{data.appOriginPrefix}/onboarding"
 					class="inline-flex h-9 items-center rounded-lg bg-cta px-4 text-xs font-medium text-white transition-colors hover:bg-cta-hover sm:text-sm"
 				>
 					<span class="sm:hidden">Prueba gratis</span>
@@ -58,7 +59,7 @@
 
 			<div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
 				<a
-					href="/onboarding"
+					href="{data.appOriginPrefix}/onboarding"
 					class="inline-flex h-11 w-full max-w-xs items-center justify-center gap-2 rounded-lg bg-cta px-6 text-sm font-medium text-white transition-colors hover:bg-cta-hover sm:w-auto"
 				>
 					<span>Prueba gratis 14 días</span>
@@ -138,7 +139,7 @@
 				</div>
 				<p class="mt-3 text-center text-[11px] text-ink-muted">
 					Interfaz de Okeo · Conversación de ejemplo —
-					<a href="/wunderside/inbox" class="font-medium text-ink underline underline-offset-2">
+					<a href="{data.appOriginPrefix}/wunderside/inbox" class="font-medium text-ink underline underline-offset-2">
 						Explorar el espacio interactivo
 					</a>
 				</p>
@@ -340,7 +341,7 @@
 				</p>
 				<div class="mt-7 flex flex-wrap items-center justify-center gap-3">
 					<a
-						href="/onboarding"
+						href="{data.appOriginPrefix}/onboarding"
 						class="inline-flex h-10 items-center gap-2 rounded-lg bg-canvas px-5 text-sm font-medium text-ink transition-colors hover:bg-surface"
 					>
 						<span>Prueba gratis 14 días</span>
@@ -366,8 +367,8 @@
 				<span>Menos pendientes. Más posibilidades.</span>
 			</div>
 			<div class="flex items-center gap-5">
-				<a href="/login" class="hover:text-ink">Iniciar sesión</a>
-				<a href="/onboarding" class="hover:text-ink">Empezar</a>
+				<a href="{data.appOriginPrefix}/login" class="hover:text-ink">Iniciar sesión</a>
+				<a href="{data.appOriginPrefix}/onboarding" class="hover:text-ink">Empezar</a>
 			</div>
 		</div>
 	</footer>
@@ -389,11 +390,11 @@
 	</div>
 
 	<div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-		<a href="/wunderside/inbox" class="text-xs font-medium text-ink-secondary hover:text-ink hover:underline">
+		<a href="{data.appOriginPrefix}/wunderside/inbox" class="text-xs font-medium text-ink-secondary hover:text-ink hover:underline">
 			Probar interfaz interactiva
 		</a>
 		<a
-			href="/onboarding"
+			href="{data.appOriginPrefix}/onboarding"
 			class="inline-flex h-10 items-center gap-2 rounded-lg bg-cta px-4 text-sm font-medium text-white hover:bg-cta-hover"
 		>
 			<span>Empezar prueba gratis</span>

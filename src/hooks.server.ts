@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { Handle } from '@sveltejs/kit';
 import { getDemoUser } from '$lib/server/crm/repository';
+import { resolveDomainContext, resolveDomainRedirect } from '$lib/server/domains';
 import type { Database } from '$lib/types/database.types';
 import type { OrgRole, Profile } from '$lib/types/domain';
 
@@ -16,6 +17,15 @@ function computeInitials(name: string): string {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
+	const domainRedirect = resolveDomainRedirect(event.url, event.request.method, publicEnv);
+	if (domainRedirect) {
+		return new Response(null, {
+			status: domainRedirect.status,
+			headers: { Location: domainRedirect.location }
+		});
+	}
+	const domainCtx = resolveDomainContext(event.url, publicEnv);
+
 	const roleCookie = event.cookies.get('okeo_demo_role') as OrgRole | undefined;
 	const demoRole: OrgRole = roleCookie && VALID_ROLES.has(roleCookie) ? roleCookie : 'owner';
 
@@ -124,9 +134,25 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return sessionPromise;
 	};
 
-	return resolve(event, {
+	const response = await resolve(event, {
 		filterSerializedResponseHeaders(name) {
 			return name === 'content-range' || name === 'x-supabase-api-version';
 		}
 	});
+
+	if (domainCtx.isAppHost) {
+		try {
+			response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+		} catch {
+			const headers = new Headers(response.headers);
+			headers.set('X-Robots-Tag', 'noindex, nofollow');
+			return new Response(response.body, {
+				status: response.status,
+				statusText: response.statusText,
+				headers
+			});
+		}
+	}
+
+	return response;
 };

@@ -8,6 +8,16 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"vars": {
+		"PUBLIC_APP_ORIGIN": "https://app.okeo.ai",
+		"PUBLIC_MARKETING_ORIGIN": "https://okeo.ai"
+	},
+	// Descomentar cuando okeo.ai esté activo en Cloudflare DNS para conectar los dominios custom:
+	// "routes": [
+	// 	{ "pattern": "app.okeo.ai", "custom_domain": true },
+	// 	{ "pattern": "okeo.ai", "custom_domain": true },
+	// 	{ "pattern": "www.okeo.ai", "custom_domain": true }
+	// ],
 	"queues": {
 		"producers": [{ "binding": "AI_JOBS", "queue": "okeo-ai-jobs" }],
 		"consumers": [{ "queue": "okeo-ai-jobs", "max_batch_size": 5, "max_retries": 3 }]

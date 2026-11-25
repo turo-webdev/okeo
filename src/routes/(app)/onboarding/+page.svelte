@@ -4,7 +4,7 @@
 	import type { Platform } from '$lib/types/domain';
 	import { Check, ChevronRight, ArrowRight } from 'lucide-svelte';
 
-	let { form } = $props();
+	let { data, form } = $props();
 
 	let businessName = $state('Wunderside');
 	let selectedPlatform = $state<Platform>('whatsapp');
@@ -28,7 +28,7 @@
 
 <div class="flex min-h-dvh flex-col bg-canvas px-6 py-7 text-ink sm:px-10">
 	<header class="flex items-center justify-between">
-		<a href="/"><BrandLogo /></a>
+		<a href={data.marketingHomeUrl}><BrandLogo /></a>
 		<a href="/wunderside/inbox" class="text-xs text-ink-muted hover:text-ink">
 			Ir al demo existente
 		</a>

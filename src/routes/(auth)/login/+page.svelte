@@ -21,7 +21,7 @@
 
 <div class="flex min-h-dvh flex-col bg-canvas px-6 py-7 text-ink sm:px-10">
 	<header>
-		<a href="/" class="inline-flex items-center">
+		<a href={data.marketingHomeUrl} class="inline-flex items-center">
 			<BrandLogo />
 		</a>
 	</header>

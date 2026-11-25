@@ -49,7 +49,7 @@
 {#if data.accessDenied}
 	<div class="flex min-h-dvh flex-col bg-canvas px-6 py-7 text-ink sm:px-10">
 		<header>
-			<a href="/"><BrandLogo /></a>
+			<a href={data.marketingHomeUrl}><BrandLogo /></a>
 		</header>
 		<main class="mx-auto flex w-full max-w-[420px] flex-1 items-center justify-center">
 			<div class="w-full rounded-2xl border border-border bg-canvas p-7">
