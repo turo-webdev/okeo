@@ -16,7 +16,7 @@ export const POST: RequestHandler = async (event) => {
 	if (!isStripeConfigured()) {
 		return json(
 			{
-				error: 'Stripe aún no está configurado en el servidor (STRIPE_SECRET_KEY / STRIPE_CHANNEL_PRICE_ID).',
+				error: 'El servicio de facturación no está disponible temporalmente.',
 				code: 'STRIPE_NOT_CONFIGURED'
 			},
 			{ status: 503 }
@@ -26,7 +26,7 @@ export const POST: RequestHandler = async (event) => {
 	if (!org.stripe_subscription_id) {
 		return json(
 			{
-				error: 'Este workspace aún no tiene una suscripción activa en Stripe.',
+				error: 'Este workspace aún no tiene una suscripción activa.',
 				code: 'NO_ACTIVE_SUBSCRIPTION'
 			},
 			{ status: 400 }
@@ -50,12 +50,10 @@ export const POST: RequestHandler = async (event) => {
 			reactivatedChannelIds: syncResult?.reactivatedChannelIds ?? []
 		});
 	} catch (err) {
+		console.error('[billing/channels-quantity] update failed:', err);
 		return json(
 			{
-				error:
-					err instanceof Error
-						? `No se pudo actualizar la suscripción en Stripe: ${err.message}`
-						: 'No se pudo actualizar la cantidad de canales en Stripe'
+				error: 'No se pudo actualizar la cantidad de canales. Intenta de nuevo.'
 			},
 			{ status: 502 }
 		);

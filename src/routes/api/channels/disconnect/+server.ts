@@ -23,12 +23,10 @@ export const POST: RequestHandler = async (event) => {
 	try {
 		await getChannelProvider().disconnectAccount(existing.external_account_id);
 	} catch (err) {
+		console.error('[channels/disconnect] disconnectAccount failed:', err);
 		return json(
 			{
-				error:
-					err instanceof Error
-						? `No se pudo desconectar el canal en Zernio: ${err.message}`
-						: 'Error al desconectar el canal'
+				error: 'No se pudo desconectar el canal. Intenta de nuevo.'
 			},
 			{ status: 502 }
 		);

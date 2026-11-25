@@ -8,7 +8,7 @@
 	import { CHANNEL_PRICE_USD, INCLUDED_AI_REPLIES_PER_CHANNEL } from '$lib/constants/plans';
 	import { hasMinRole, type Platform, type SubscriptionStatus } from '$lib/types/domain';
 	import { formatRoleLabel } from '$lib/utils/format';
-	import { ChevronRight, Lock, Check, Copy, CreditCard, ExternalLink, Mail } from 'lucide-svelte';
+	import { ChevronRight, Lock, Check, Copy, ExternalLink } from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -63,7 +63,7 @@
 		}
 		if (status === 'trialing') {
 			return {
-				label: billingMode === 'trial' ? 'Sin plan activo' : 'Trial Stripe',
+				label: billingMode === 'trial' ? 'Sin plan activo' : 'Periodo de prueba',
 				className: 'bg-surface text-ink-secondary'
 			};
 		}
@@ -92,12 +92,12 @@
 			});
 			const payload = (await res.json()) as { checkoutUrl?: string; error?: string };
 			if (!res.ok || !payload.checkoutUrl) {
-				billingError = payload.error ?? 'No se pudo iniciar Stripe Checkout.';
+				billingError = payload.error ?? 'No se pudo iniciar el proceso de pago.';
 				return;
 			}
 			window.location.href = payload.checkoutUrl;
 		} catch {
-			billingError = 'Error de red al conectar con Stripe.';
+			billingError = 'Error de red al abrir la pasarela de pagos.';
 		} finally {
 			billingBusy = null;
 		}
@@ -125,12 +125,12 @@
 				error?: string;
 			};
 			if (!res.ok || !payload.ok) {
-				billingError = payload.error ?? 'No se pudo actualizar los cupos en Stripe.';
+				billingError = payload.error ?? 'No se pudo actualizar los cupos contratados.';
 				return;
 			}
 
 			const parts = [
-				`Cupos actualizados a ${payload.channelSlots ?? desiredSlots} canal(es) con prorrateo en Stripe.`
+				`Cupos actualizados a ${payload.channelSlots ?? desiredSlots} canal(es) con ajuste prorrateado.`
 			];
 			if (payload.pausedChannelIds && payload.pausedChannelIds.length > 0) {
 				parts.push(`${payload.pausedChannelIds.length} canal(es) excedente(s) pasaron a pausa.`);
@@ -189,11 +189,11 @@
 			case 'oauth_cancelled':
 				return 'Cancelaste la autorización con la red social antes de completarla.';
 			case 'account_not_found':
-				return 'No encontramos la cuenta seleccionada dentro de tu perfil de Zernio.';
+				return 'No encontramos la cuenta seleccionada. Intenta conectarla de nuevo.';
 			case 'missing_account_id':
-				return 'Zernio no devolvió el identificador de la cuenta conectada.';
+				return 'No se recibió el identificador de la cuenta conectada.';
 			case 'zernio_verify_failed':
-				return 'No pudimos verificar la cuenta conectada con Zernio.';
+				return 'No pudimos verificar la cuenta conectada. Intenta de nuevo.';
 			default:
 				return 'No se pudo completar la conexión del canal. Intenta de nuevo.';
 		}
@@ -444,23 +444,6 @@
 					{/if}
 				</div>
 			{:else}
-				<div class="mb-4 flex items-center justify-between gap-2">
-					<span
-						class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium {data.zernioConfigured
-							? 'bg-sage-soft text-sage-ink'
-							: 'bg-surface text-ink-muted'}"
-					>
-						<span
-							class="size-1.5 rounded-full {data.zernioConfigured
-								? 'bg-sage-ink'
-								: 'bg-ink-muted'}"
-						></span>
-						{data.zernioConfigured
-							? 'Zernio conectado'
-							: 'Modo pruebas local · falta ZERNIO_API_KEY'}
-					</span>
-				</div>
-
 				{#if data.connectedPlatform}
 					<p class="mb-4 rounded-lg bg-sage-soft px-3 py-2 text-xs text-ink">
 						✓ {platformLabel(data.connectedPlatform)} conectado correctamente.
@@ -648,19 +631,6 @@
 
 				<!-- Invitar miembro (16_Estados_de_invitacion.png) -->
 				{#if canManage}
-					<div class="flex items-center justify-between gap-2">
-						<span
-							class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium {data.emailConfigured
-								? 'bg-sage-soft text-sage-ink'
-								: 'bg-surface text-ink-muted'}"
-						>
-							<Mail class="size-3" aria-hidden="true" />
-							{data.emailConfigured
-								? 'Correos automáticos activos'
-								: 'Modo enlace manual · falta RESEND_API_KEY'}
-						</span>
-					</div>
-
 					<form
 						method="POST"
 						action="?/inviteMember"
@@ -748,7 +718,7 @@
 								</p>
 							{:else if !delivery?.sent}
 								<p class="mt-1.5 text-[11px] text-ink-muted">
-									Comparte este enlace o configura <code class="rounded bg-canvas px-1 py-0.5 text-[10px]">RESEND_API_KEY</code> para enviarlo por correo automáticamente.
+									Comparte este enlace directamente con la persona invitada.
 								</p>
 							{/if}
 							<div class="mt-2.5 flex items-center gap-2">
@@ -871,29 +841,21 @@
 						<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium {badge.className}">
 							{badge.label}
 						</span>
-						<span
-							class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium {data.stripeConfigured
-								? 'bg-sage-soft text-sage-ink'
-								: 'bg-surface text-ink-muted'}"
-						>
-							<CreditCard class="size-3" aria-hidden="true" />
-							{data.stripeConfigured ? 'Stripe conectado' : 'Falta configurar Stripe'}
-						</span>
 					</div>
 
 					{#if data.billingFeedback === 'success'}
 						{#if hasActiveStripeSubscription}
 							<p class="rounded-lg bg-sage-soft px-3 py-2 text-xs text-ink">
-								✓ Pago confirmado en Stripe. Tus cupos y respuestas de IA ya están sincronizados.
+								✓ Pago confirmado. Tus cupos y respuestas de IA ya están sincronizados.
 							</p>
 						{:else}
 							<p class="rounded-lg border border-note-border bg-note-soft px-3 py-2 text-xs text-amber-ink">
-								Pago recibido en Stripe. Estamos sincronizando tu suscripción; recarga en unos segundos si aún figura como trial.
+								Pago recibido. Estamos sincronizando tu suscripción; recarga en unos segundos si aún no se refleja.
 							</p>
 						{/if}
 					{:else if data.billingFeedback === 'canceled'}
 						<p class="rounded-lg border border-note-border bg-note-soft px-3 py-2 text-xs text-amber-ink">
-							El proceso de pago en Stripe fue cancelado; no se realizó ningún cargo.
+							El proceso de pago fue cancelado; no se realizó ningún cargo.
 						</p>
 					{/if}
 
@@ -973,8 +935,8 @@
 									class="h-10 w-full rounded-lg bg-cta text-xs font-medium text-white hover:bg-cta-hover disabled:opacity-50"
 								>
 									{billingBusy === 'quantity'
-										? 'Actualizando en Stripe...'
-										: 'Actualizar cupos (prorrateo Stripe)'}
+										? 'Actualizando cupos...'
+										: 'Actualizar cupos (ajuste prorrateado)'}
 								</button>
 
 								{#if data.org.stripe_customer_id}
@@ -1000,7 +962,7 @@
 									class="h-10 w-full rounded-lg bg-cta text-xs font-medium text-white hover:bg-cta-hover disabled:opacity-50"
 								>
 									{billingBusy === 'checkout'
-										? 'Redirigiendo a Stripe...'
+										? 'Abriendo pago seguro...'
 										: `Activar plan ($${desiredSlots * CHANNEL_PRICE_USD} USD/mes)`}
 								</button>
 
@@ -1019,10 +981,7 @@
 
 							{#if !data.stripeConfigured}
 								<p class="text-[11px] text-ink-muted">
-									Agrega <code class="rounded bg-surface px-1 py-0.5 text-[10px]">STRIPE_SECRET_KEY</code>,
-									<code class="rounded bg-surface px-1 py-0.5 text-[10px]">STRIPE_CHANNEL_PRICE_ID</code> y
-									<code class="rounded bg-surface px-1 py-0.5 text-[10px]">STRIPE_WEBHOOK_SECRET</code> en tu archivo
-									<code class="rounded bg-surface px-1 py-0.5 text-[10px]">.env</code> para habilitar Checkout y Portal reales.
+									La pasarela de pagos no está disponible temporalmente. Intenta más tarde o contacta a soporte.
 								</p>
 							{/if}
 						</div>

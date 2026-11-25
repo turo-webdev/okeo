@@ -15,7 +15,7 @@ export const POST: RequestHandler = async (event) => {
 	if (!isStripeConfigured()) {
 		return json(
 			{
-				error: 'Stripe aún no está configurado en el servidor (STRIPE_SECRET_KEY / STRIPE_CHANNEL_PRICE_ID).',
+				error: 'El servicio de facturación no está disponible temporalmente.',
 				code: 'STRIPE_NOT_CONFIGURED'
 			},
 			{ status: 503 }
@@ -53,12 +53,10 @@ export const POST: RequestHandler = async (event) => {
 			mode: 'stripe'
 		});
 	} catch (err) {
+		console.error('[billing/checkout] createChannelCheckoutSession failed:', err);
 		return json(
 			{
-				error:
-					err instanceof Error
-						? `No se pudo iniciar Stripe Checkout: ${err.message}`
-						: 'No se pudo iniciar el proceso de pago con Stripe'
+				error: 'No se pudo iniciar el proceso de pago. Intenta de nuevo.'
 			},
 			{ status: 502 }
 		);

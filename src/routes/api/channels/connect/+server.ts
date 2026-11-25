@@ -49,8 +49,9 @@ export const POST: RequestHandler = async (event) => {
 	try {
 		stateSecret = getOAuthStateSecret();
 	} catch (err) {
+		console.error('[channels/connect] OAuth state secret missing:', err);
 		return json(
-			{ error: err instanceof Error ? err.message : 'Falta OAUTH_STATE_SECRET' },
+			{ error: 'Servicio de conexión no disponible temporalmente.' },
 			{ status: 503 }
 		);
 	}
@@ -62,12 +63,10 @@ export const POST: RequestHandler = async (event) => {
 			profileId = created.profileId;
 			await updateOrganizationZernioProfileId(org.id, profileId, event.locals);
 		} catch (err) {
+			console.error('[channels/connect] createProfile failed:', err);
 			return json(
 				{
-					error:
-						err instanceof Error
-							? `No se pudo crear el perfil en Zernio: ${err.message}`
-							: 'No se pudo inicializar el perfil en Zernio'
+					error: 'No se pudo inicializar la conexión de mensajería. Intenta de nuevo.'
 				},
 				{ status: 502 }
 			);
@@ -99,12 +98,10 @@ export const POST: RequestHandler = async (event) => {
 
 		return json({ ok: true, authUrl, mode: liveMode ? 'zernio' : 'mock' });
 	} catch (err) {
+		console.error('[channels/connect] getConnectUrl failed:', err);
 		return json(
 			{
-				error:
-					err instanceof Error
-						? `No se pudo obtener el enlace de conexión en Zernio: ${err.message}`
-						: 'Error al generar URL de conexión en Zernio'
+				error: 'No se pudo generar el enlace de conexión del canal. Intenta de nuevo.'
 			},
 			{ status: 502 }
 		);

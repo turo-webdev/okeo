@@ -19,7 +19,7 @@ export const POST: RequestHandler = async (event) => {
 	if (!isStripeConfigured()) {
 		return json(
 			{
-				error: 'Stripe aún no está configurado en el servidor (STRIPE_SECRET_KEY / STRIPE_CHANNEL_PRICE_ID).',
+				error: 'El portal de facturación no está disponible temporalmente.',
 				code: 'STRIPE_NOT_CONFIGURED'
 			},
 			{ status: 503 }
@@ -29,7 +29,7 @@ export const POST: RequestHandler = async (event) => {
 	if (!org.stripe_customer_id) {
 		return json(
 			{
-				error: 'Primero activa tu plan en Stripe para acceder al portal de facturación.',
+				error: 'Primero activa tu plan para acceder al portal de facturación.',
 				code: 'NO_STRIPE_CUSTOMER'
 			},
 			{ status: 400 }
@@ -44,12 +44,10 @@ export const POST: RequestHandler = async (event) => {
 
 		return json({ ok: true, portalUrl: portal.portalUrl, mode: 'stripe' });
 	} catch (err) {
+		console.error('[billing/portal] createCustomerPortalSession failed:', err);
 		return json(
 			{
-				error:
-					err instanceof Error
-						? `No se pudo abrir el portal de Stripe: ${err.message}`
-						: 'No se pudo generar el enlace del portal de facturación'
+				error: 'No se pudo abrir el portal de facturación. Intenta de nuevo.'
 			},
 			{ status: 502 }
 		);

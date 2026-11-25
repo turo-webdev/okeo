@@ -26,8 +26,9 @@ export const GET: RequestHandler = async (event) => {
 	try {
 		secret = getOAuthStateSecret();
 	} catch (err) {
+		console.error('[channels/connect/callback] OAuth state secret missing:', err);
 		return json(
-			{ error: err instanceof Error ? err.message : 'Falta OAUTH_STATE_SECRET' },
+			{ error: 'Servicio de conexión no disponible temporalmente.' },
 			{ status: 503 }
 		);
 	}

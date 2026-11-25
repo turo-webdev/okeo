@@ -538,9 +538,9 @@
 					<div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface/60 px-3 py-2 text-[11px]">
 						<span class="text-ink-secondary">
 							{#if simProvider === 'gemini' || data.geminiConfigured}
-								Gemini en vivo ({simModel ?? data.geminiModel}) · {data.org.name}
+								Asistente IA activo · {data.org.name}
 							{:else}
-								Modo simulado con tu KB · agrega GEMINI_API_KEY para IA real
+								Simulador de prueba · {data.org.name}
 							{/if}
 						</span>
 						<div class="flex items-center gap-1.5">

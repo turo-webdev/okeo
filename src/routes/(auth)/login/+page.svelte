@@ -45,7 +45,7 @@
 			(data.authError === 'auth_callback_failed'
 				? 'El enlace de acceso expiró o ya fue utilizado. Solicita uno nuevo.'
 				: data.authError === 'supabase_not_configured'
-					? 'Supabase no está configurado en este entorno.'
+					? 'El inicio de sesión no está disponible en este entorno.'
 					: '')
 	);
 

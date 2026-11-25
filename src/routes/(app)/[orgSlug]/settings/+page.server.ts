@@ -64,11 +64,9 @@ export const actions: Actions = {
 		try {
 			await getChannelProvider().disconnectAccount(existing.external_account_id);
 		} catch (err) {
+			console.error('[channels] disconnect failed:', err);
 			return fail(502, {
-				error:
-					err instanceof Error
-						? `No se pudo desconectar en Zernio: ${err.message}`
-						: 'Error al desconectar el canal en Zernio'
+				error: 'No se pudo desconectar el canal. Intenta de nuevo.'
 			});
 		}
 

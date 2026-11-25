@@ -19,7 +19,7 @@ function resolveSafeNextPath(nextParam?: string | null): string | null {
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.supabase) {
-		return json({ error: 'Supabase no está configurado en este entorno.' }, { status: 503 });
+		return json({ error: 'El inicio de sesión no está disponible en este entorno.' }, { status: 503 });
 	}
 
 	let rawBody: unknown;
