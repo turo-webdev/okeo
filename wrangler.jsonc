@@ -10,7 +10,8 @@
 	},
 	"vars": {
 		"PUBLIC_APP_ORIGIN": "https://app.okeo.ai",
-		"PUBLIC_MARKETING_ORIGIN": "https://okeo.ai"
+		"PUBLIC_MARKETING_ORIGIN": "https://okeo.ai",
+		"PUBLIC_GOOGLE_CLIENT_ID": "774426314949-c6q2fudr60t43k8stv3tf1q19t7e818k.apps.googleusercontent.com"
 	},
 	"routes": [
 		{ "pattern": "app.okeo.ai", "custom_domain": true },

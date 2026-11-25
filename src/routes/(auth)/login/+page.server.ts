@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { env as publicEnv } from '$env/dynamic/public';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { listUserOrganizations } from '$lib/server/crm/repository';
@@ -39,6 +40,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	}
 	return {
 		supabaseConfigured,
+		googleClientId: publicEnv.PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? '',
 		nextPath,
 		authError: url.searchParams.get('error') ?? ''
 	};
