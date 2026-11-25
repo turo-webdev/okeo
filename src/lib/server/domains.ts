@@ -6,6 +6,7 @@ export interface DomainContext {
 	isMarketingHost: boolean;
 	isWwwMarketingHost: boolean;
 	appOriginPrefix: string;
+	marketingOriginPrefix: string;
 	marketingHomeUrl: string;
 }
 
@@ -22,6 +23,8 @@ const APP_ONLY_EXACT_OR_SUBPATH_PREFIXES = [
 	'/auth/callback',
 	'/invite'
 ] as const;
+
+const MARKETING_ONLY_EXACT_OR_SUBPATH_PREFIXES = ['/terminos', '/privacidad'] as const;
 
 const WORKSPACE_APP_ROUTE_RE = /^\/[^/]+\/(inbox|pipeline|contacts|ai|dashboard|settings)(\/|$)/;
 
@@ -74,8 +77,22 @@ export function resolveDomainContext(
 		isMarketingHost,
 		isWwwMarketingHost,
 		appOriginPrefix: isMarketingHost && appOrigin ? appOrigin : '',
+		marketingOriginPrefix: isAppHost && marketingOrigin ? marketingOrigin : '',
 		marketingHomeUrl: isAppHost && marketingOrigin ? marketingOrigin : '/'
 	};
+}
+
+/**
+ * Identifies routes belonging exclusively to the marketing host (`okeo.ai`),
+ * such as legal pages so they stay canonical on `okeo.ai`.
+ */
+export function isMarketingOnlyPath(pathname: string): boolean {
+	for (const prefix of MARKETING_ONLY_EXACT_OR_SUBPATH_PREFIXES) {
+		if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -126,6 +143,13 @@ export function resolveDomainRedirect(
 		return {
 			status,
 			location: `${ctx.appOrigin}${url.pathname}${url.search}`
+		};
+	}
+
+	if (ctx.isAppHost && ctx.marketingOrigin && isMarketingOnlyPath(url.pathname)) {
+		return {
+			status: 301,
+			location: `${ctx.marketingOrigin}${url.pathname}${url.search}`
 		};
 	}
 

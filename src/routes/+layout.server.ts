@@ -6,6 +6,7 @@ export const load: LayoutServerLoad = async ({ url }) => {
 	const domainCtx = resolveDomainContext(url, publicEnv);
 	return {
 		marketingHomeUrl: domainCtx.marketingHomeUrl,
+		marketingOriginPrefix: domainCtx.marketingOriginPrefix,
 		appOriginPrefix: domainCtx.appOriginPrefix
 	};
 };

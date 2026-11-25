@@ -360,7 +360,9 @@
 				<BrandLogo size="sm" />
 				<span>Menos pendientes. Más posibilidades.</span>
 			</div>
-			<div class="flex items-center gap-5">
+			<div class="flex flex-wrap items-center gap-5">
+				<a href="/terminos" class="hover:text-ink">Términos</a>
+				<a href="/privacidad" class="hover:text-ink">Privacidad</a>
 				<a href="{data.appOriginPrefix}/login" class="hover:text-ink">Iniciar sesión</a>
 				<a href="{data.appOriginPrefix}/onboarding" class="hover:text-ink">Empezar</a>
 			</div>

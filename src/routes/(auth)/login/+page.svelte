@@ -139,7 +139,14 @@
 		</div>
 
 		<p class="mt-6 text-[11px] text-ink-muted">
-			Al continuar aceptas los términos y la política de privacidad.
+			Al continuar aceptas los
+			<a href="{data.marketingOriginPrefix}/terminos" class="underline underline-offset-2 hover:text-ink">
+				términos
+			</a>
+			y la
+			<a href="{data.marketingOriginPrefix}/privacidad" class="underline underline-offset-2 hover:text-ink">
+				política de privacidad
+			</a>.
 		</p>
 	</main>
 </div>

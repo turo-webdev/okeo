@@ -55,13 +55,22 @@ describe('domains helper', () => {
 		});
 	});
 
-	it('keeps marketing pages, blog, and industry landings on okeo.ai without redirecting', () => {
-		for (const path of ['/', '/blog', '/blog/whatsapp-crm', '/clinica-dental', '/precios']) {
+	it('keeps marketing pages, blog, legal pages, and industry landings on okeo.ai without redirecting', () => {
+		for (const path of [
+			'/',
+			'/blog',
+			'/blog/whatsapp-crm',
+			'/clinica-dental',
+			'/precios',
+			'/terminos',
+			'/privacidad'
+		]) {
 			const url = new URL(`https://okeo.ai${path}`);
 			const ctx = resolveDomainContext(url, PROD_ENV);
 			expect(ctx.isMarketingHost).toBe(true);
 			expect(ctx.isAppHost).toBe(false);
 			expect(ctx.appOriginPrefix).toBe('https://app.okeo.ai');
+			expect(ctx.marketingOriginPrefix).toBe('');
 			expect(isAppOnlyPath(url.pathname)).toBe(false);
 			expect(resolveDomainRedirect(url, 'GET', PROD_ENV)).toBeNull();
 		}
@@ -98,15 +107,27 @@ describe('domains helper', () => {
 		).toBeNull();
 	});
 
-	it('recognizes app.okeo.ai as app host and links home back to https://okeo.ai', () => {
+	it('recognizes app.okeo.ai as app host, links home back to https://okeo.ai, and redirects legal pages with 301', () => {
 		for (const path of ['/', '/clinica-dental/inbox']) {
 			const url = new URL(`https://app.okeo.ai${path}`);
 			const ctx = resolveDomainContext(url, PROD_ENV);
 			expect(ctx.isAppHost).toBe(true);
 			expect(ctx.isMarketingHost).toBe(false);
 			expect(ctx.marketingHomeUrl).toBe('https://okeo.ai');
+			expect(ctx.marketingOriginPrefix).toBe('https://okeo.ai');
 			expect(ctx.appOriginPrefix).toBe('');
 			expect(resolveDomainRedirect(url, 'GET', PROD_ENV)).toBeNull();
 		}
+
+		for (const legalPath of ['/terminos', '/privacidad']) {
+			expect(
+				resolveDomainRedirect(new URL(`https://app.okeo.ai${legalPath}`), 'GET', PROD_ENV)
+			).toEqual({
+				status: 301,
+				location: `https://okeo.ai${legalPath}`
+			});
+		}
+
+		expect(resolveDomainContext(new URL('http://localhost:5173/login'), PROD_ENV).marketingOriginPrefix).toBe('');
 	});
 });
