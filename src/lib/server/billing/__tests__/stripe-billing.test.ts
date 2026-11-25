@@ -8,6 +8,7 @@ import {
 	type BillingChannelRow,
 	type BillingLifecycleDeps
 } from '../lifecycle';
+import { canOrganizationConnectRealChannels } from '../plans';
 import {
 	extractInvoiceSubscriptionId,
 	extractSubscriptionPeriod,
@@ -386,5 +387,37 @@ describe('Channel reconciliation, webhook handling & lifecycle Zernio cleanup', 
 		expect(incompleteRes).toEqual({ synced: false, reason: 'checkout_not_complete' });
 		expect(h.orgPatches).toHaveLength(1);
 		expect(h.usageSyncCalls).toHaveLength(1);
+	});
+});
+
+describe('Real channel subscription gate', () => {
+	it('allows real channel connection only for active per_channel subscriptions', () => {
+		const futureDate = new Date(Date.now() + 14 * 86400_000).toISOString();
+
+		expect(
+			canOrganizationConnectRealChannels({
+				billing_mode: 'trial',
+				subscription_status: 'trialing',
+				trial_ends_at: futureDate
+			})
+		).toBe(false);
+
+		for (const status of ['past_due', 'canceled', 'expired'] as const) {
+			expect(
+				canOrganizationConnectRealChannels({
+					billing_mode: 'per_channel',
+					subscription_status: status,
+					trial_ends_at: null
+				})
+			).toBe(false);
+		}
+
+		expect(
+			canOrganizationConnectRealChannels({
+				billing_mode: 'per_channel',
+				subscription_status: 'active',
+				trial_ends_at: null
+			})
+		).toBe(true);
 	});
 });

@@ -1,10 +1,8 @@
 <script lang="ts">
 	import BrandLogo from '$lib/components/shared/BrandLogo.svelte';
-	import ModalDialog from '$lib/components/ui/ModalDialog.svelte';
-	import { ArrowRight, Play, Sparkles } from 'lucide-svelte';
+	import { ArrowRight, Sparkles } from 'lucide-svelte';
 
 	let { data } = $props();
-	let videoModalOpen = $state(false);
 </script>
 
 <svelte:head>
@@ -33,8 +31,8 @@
 					href="{data.appOriginPrefix}/onboarding"
 					class="inline-flex h-9 items-center rounded-lg bg-cta px-4 text-xs font-medium text-white transition-colors hover:bg-cta-hover sm:text-sm"
 				>
-					<span class="sm:hidden">Prueba gratis</span>
-					<span class="hidden sm:inline">Empezar gratis</span>
+					<span class="sm:hidden">Empezar</span>
+					<span class="hidden sm:inline">Empezar ahora</span>
 				</a>
 			</div>
 		</div>
@@ -62,17 +60,15 @@
 					href="{data.appOriginPrefix}/onboarding"
 					class="inline-flex h-11 w-full max-w-xs items-center justify-center gap-2 rounded-lg bg-cta px-6 text-sm font-medium text-white transition-colors hover:bg-cta-hover sm:w-auto"
 				>
-					<span>Prueba gratis 14 días</span>
+					<span>Empezar ($9 USD/canal)</span>
 					<ArrowRight class="size-4" aria-hidden="true" />
 				</a>
-				<button
-					type="button"
-					onclick={() => (videoModalOpen = true)}
+				<a
+					href="{data.appOriginPrefix}/wunderside/inbox"
 					class="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
 				>
-					<Play class="size-3.5 fill-current" aria-hidden="true" />
-					<span>Ver demo en video</span>
-				</button>
+					<span>Probar demo interactivo</span>
+				</a>
 			</div>
 
 			<p class="mt-6 text-xs text-ink-muted">WhatsApp · Instagram · Messenger</p>
@@ -323,7 +319,7 @@
 						¿Cómo funciona el cobro por canal?
 					</summary>
 					<p class="mt-2 text-sm text-ink-secondary">
-						Empiezas con 14 días de prueba. Después pagas $9 USD/mes por cada canal conectado, incluyendo 1,000 respuestas de IA al mes por canal en tu workspace.
+						Pagas $9 USD/mes por cada canal conectado (WhatsApp, Instagram o Messenger), incluyendo 1,000 respuestas de IA al mes por canal en tu workspace y usuarios ilimitados. Puedes explorar el demo interactivo antes de suscribirte.
 					</p>
 				</details>
 			</div>
@@ -344,17 +340,15 @@
 						href="{data.appOriginPrefix}/onboarding"
 						class="inline-flex h-10 items-center gap-2 rounded-lg bg-canvas px-5 text-sm font-medium text-ink transition-colors hover:bg-surface"
 					>
-						<span>Prueba gratis 14 días</span>
+						<span>Empezar por $9 USD/mes</span>
 						<ArrowRight class="size-4" aria-hidden="true" />
 					</a>
-					<button
-						type="button"
-						onclick={() => (videoModalOpen = true)}
+					<a
+						href="{data.appOriginPrefix}/wunderside/inbox"
 						class="inline-flex h-10 items-center gap-2 rounded-lg border border-white/25 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10"
 					>
-						<Play class="size-3.5 fill-current" aria-hidden="true" />
-						<span>Ver demo en video</span>
-					</button>
+						<span>Explorar demo interactivo</span>
+					</a>
 				</div>
 			</div>
 		</section>
@@ -373,32 +367,3 @@
 		</div>
 	</footer>
 </div>
-
-<ModalDialog
-	bind:open={videoModalOpen}
-	title="Demo en video de Okeo"
-	subtitle="Recorrido rápido por Inbox, Pipeline Kanban y el Asistente IA (100% self-serve)."
->
-	<div class="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-border bg-sidebar p-6 text-center">
-		<div class="flex size-12 items-center justify-center rounded-full bg-cta text-white">
-			<Play class="ml-0.5 size-5 fill-current" aria-hidden="true" />
-		</div>
-		<p class="mt-3 text-sm font-medium text-ink">Espacio listo para incrustar el video demo</p>
-		<p class="mt-1 text-xs text-ink-muted">
-			Aquí irá el video walkthrough de conexión de canales, respuestas con IA y pipeline.
-		</p>
-	</div>
-
-	<div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-		<a href="{data.appOriginPrefix}/wunderside/inbox" class="text-xs font-medium text-ink-secondary hover:text-ink hover:underline">
-			Probar interfaz interactiva
-		</a>
-		<a
-			href="{data.appOriginPrefix}/onboarding"
-			class="inline-flex h-10 items-center gap-2 rounded-lg bg-cta px-4 text-sm font-medium text-white hover:bg-cta-hover"
-		>
-			<span>Empezar prueba gratis</span>
-			<ArrowRight class="size-4" aria-hidden="true" />
-		</a>
-	</div>
-</ModalDialog>

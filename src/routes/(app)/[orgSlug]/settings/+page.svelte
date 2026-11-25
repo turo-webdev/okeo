@@ -48,11 +48,11 @@
 					data.org.subscription_status !== 'expired'
 			)
 	);
-	let trialDaysRemaining = $derived.by(() => {
-		if (data.denied || data.org.billing_mode !== 'trial' || !data.org.trial_ends_at) return 0;
-		const diff = Date.parse(data.org.trial_ends_at) - Date.now();
-		return Math.max(0, Math.ceil(diff / 86400_000));
-	});
+	let canConnectRealChannels = $derived(
+		!data.denied &&
+			data.org.billing_mode === 'per_channel' &&
+			data.org.subscription_status === 'active'
+	);
 
 	function subscriptionStatusLabel(status: SubscriptionStatus, billingMode: string): {
 		label: string;
@@ -62,14 +62,8 @@
 			return { label: 'Suscripción activa', className: 'bg-sage-soft text-sage-ink' };
 		}
 		if (status === 'trialing') {
-			if (billingMode === 'trial' && trialDaysRemaining === 0) {
-				return { label: 'Trial expirado', className: 'bg-note-soft text-amber-ink' };
-			}
 			return {
-				label:
-					billingMode === 'trial'
-						? `Trial · ${trialDaysRemaining} día${trialDaysRemaining === 1 ? '' : 's'} restante${trialDaysRemaining === 1 ? '' : 's'}`
-						: 'Trial Stripe',
+				label: billingMode === 'trial' ? 'Sin plan activo' : 'Trial Stripe',
 				className: 'bg-surface text-ink-secondary'
 			};
 		}
@@ -186,6 +180,8 @@
 
 	function mapChannelErrorMessage(code: string): string {
 		switch (code) {
+			case 'subscription_required':
+				return 'Activa tu plan ($9 USD/canal/mes) en Configuración → Plan para conectar canales reales.';
 			case 'account_in_other_org':
 				return 'Esa cuenta social ya está conectada en otro workspace de Okeo.';
 			case 'channel_slots_full':
@@ -301,7 +297,7 @@
 							<p class="mt-1 text-xs text-ink-muted">
 								{subscriptionStatusLabel(data.org.subscription_status, data.org.billing_mode).label}
 								{data.org.billing_mode === 'trial'
-									? ' · 1 canal incluido'
+									? ' · Activa $9 USD/canal para conectar canales reales'
 									: ` · $${CHANNEL_PRICE_USD} USD/canal · ${data.org.channel_slots} canales`}
 							</p>
 						</div>
@@ -511,7 +507,7 @@
 										Ajustar plan
 									</button>
 								</div>
-							{:else}
+							{:else if canConnectRealChannels}
 								<button
 									type="button"
 									disabled={connectingKey !== null}
@@ -520,40 +516,63 @@
 								>
 									{connectingKey === channel.id ? 'Conectando...' : 'Reconectar'}
 								</button>
+							{:else}
+								<button
+									type="button"
+									onclick={() => (activePanel = 'plan')}
+									class="text-xs font-medium text-ink hover:underline"
+								>
+									Activar plan
+								</button>
 							{/if}
 						</div>
 					{/each}
 				</div>
 
-				<p class="mt-5 text-xs text-ink-muted">
-					{activeChannelsCount} de {data.org.channel_slots} canales contratados
-				</p>
-
-				{#if activeChannelsCount < data.org.channel_slots}
-					<div class="mt-4 space-y-2 border-t border-border pt-4">
-						<p class="text-xs font-medium text-ink">Conectar nuevo canal</p>
-						<div class="grid grid-cols-3 gap-2">
-							{#each ['whatsapp', 'instagram', 'facebook'] as const as platform}
-								<button
-									type="button"
-									disabled={connectingKey !== null}
-									onclick={() => startChannelOAuth(platform)}
-									class="flex items-center justify-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs font-medium text-ink transition-colors hover:bg-surface disabled:opacity-50"
-								>
-									<ChannelIcon {platform} class="size-3.5 text-ink-muted" />
-									<span>{connectingKey === platform ? '...' : platformLabel(platform)}</span>
-								</button>
-							{/each}
-						</div>
+				{#if !canConnectRealChannels}
+					<div class="mt-5 rounded-xl border border-border bg-sidebar p-4">
+						<p class="text-xs leading-relaxed text-ink-secondary">
+							Activa tu suscripción (<strong class="font-medium text-ink">${CHANNEL_PRICE_USD} USD/canal/mes</strong>) para conectar WhatsApp, Instagram o Messenger reales. Mientras tanto puedes cargar tu Base de Conocimiento y probar el Simulador IA.
+						</p>
+						<button
+							type="button"
+							onclick={() => (activePanel = 'plan')}
+							class="mt-3 h-10 w-full rounded-lg bg-cta text-xs font-medium text-white transition-colors hover:bg-cta-hover"
+						>
+							Activar plan (${CHANNEL_PRICE_USD} USD/canal/mes)
+						</button>
 					</div>
 				{:else}
-					<button
-						type="button"
-						onclick={() => (activePanel = 'plan')}
-						class="mt-4 h-10 w-full rounded-lg border border-border text-xs font-medium text-ink hover:bg-surface"
-					>
-						Añadir otro canal (+${CHANNEL_PRICE_USD} USD/mes)
-					</button>
+					<p class="mt-5 text-xs text-ink-muted">
+						{activeChannelsCount} de {data.org.channel_slots} canales contratados
+					</p>
+
+					{#if activeChannelsCount < data.org.channel_slots}
+						<div class="mt-4 space-y-2 border-t border-border pt-4">
+							<p class="text-xs font-medium text-ink">Conectar nuevo canal</p>
+							<div class="grid grid-cols-3 gap-2">
+								{#each ['whatsapp', 'instagram', 'facebook'] as const as platform}
+									<button
+										type="button"
+										disabled={connectingKey !== null}
+										onclick={() => startChannelOAuth(platform)}
+										class="flex items-center justify-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs font-medium text-ink transition-colors hover:bg-surface disabled:opacity-50"
+									>
+										<ChannelIcon {platform} class="size-3.5 text-ink-muted" />
+										<span>{connectingKey === platform ? '...' : platformLabel(platform)}</span>
+									</button>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<button
+							type="button"
+							onclick={() => (activePanel = 'plan')}
+							class="mt-4 h-10 w-full rounded-lg border border-border text-xs font-medium text-ink hover:bg-surface"
+						>
+							Añadir otro canal (+${CHANNEL_PRICE_USD} USD/mes)
+						</button>
+					{/if}
 				{/if}
 			{/if}
 		</SidePanel>
@@ -893,7 +912,7 @@
 					<div>
 						<p class="text-lg font-semibold text-ink">
 							{data.org.billing_mode === 'trial'
-								? 'Trial gratuito (14 días)'
+								? 'Sin suscripción activa'
 								: `$${data.usageSummary.monthlyTotalUsd} USD/mes`}
 						</p>
 						<p class="mt-0.5 text-xs text-ink-muted">

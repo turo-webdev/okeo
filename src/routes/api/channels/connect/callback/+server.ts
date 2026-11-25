@@ -1,5 +1,6 @@
 import { json, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { canOrganizationConnectRealChannels } from '$lib/server/billing/plans';
 import { getOAuthStateSecret, verifyOAuthState } from '$lib/server/channels/state';
 import { getChannelProvider, isZernioConfigured } from '$lib/server/channels/zernio';
 import {
@@ -50,6 +51,10 @@ export const GET: RequestHandler = async (event) => {
 	const { user: sessionUser } = await event.locals.safeGetSession();
 	if (sessionUser && sessionUser.id !== payload.userId) {
 		return json({ error: 'La sesión actual no coincide con quien inició la conexión' }, { status: 403 });
+	}
+
+	if (!canOrganizationConnectRealChannels(org)) {
+		throw redirect(303, `/${org.slug}/settings?panel=plan&error=subscription_required`);
 	}
 
 	const oauthError = event.url.searchParams.get('error');

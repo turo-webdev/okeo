@@ -38,6 +38,13 @@ export function isOrganizationSubscriptionBlocked(
 	return isOrganizationTrialExpired(org);
 }
 
+export function canOrganizationConnectRealChannels(
+	org: Pick<Organization, 'billing_mode' | 'subscription_status' | 'trial_ends_at'>
+): boolean {
+	if (isOrganizationSubscriptionBlocked(org)) return false;
+	return org.billing_mode === 'per_channel' && org.subscription_status === 'active';
+}
+
 export function calculateIncludedAiReplies(org: Organization): number {
 	if (org.billing_mode === 'trial') {
 		return TRIAL_INCLUDED_AI_REPLIES;

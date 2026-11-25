@@ -82,7 +82,7 @@
 					{/each}
 				</div>
 				<p class="mt-2 text-[11px] text-ink-muted">
-					{platforms.find((p) => p.id === selectedPlatform)?.hint} · Prueba de 14 días incluida.
+					{platforms.find((p) => p.id === selectedPlatform)?.hint} · Explora tu workspace y activa tu plan ($9 USD/canal/mes) al conectar un canal real.
 				</p>
 			</fieldset>
 

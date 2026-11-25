@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { assertApiOrgMember, parseValidatedBody, requireApiSession } from '$lib/server/auth';
-import { isOrganizationSubscriptionBlocked } from '$lib/server/billing/plans';
+import { canOrganizationConnectRealChannels } from '$lib/server/billing/plans';
 import { getOAuthStateSecret, signOAuthState } from '$lib/server/channels/state';
 import { getChannelProvider, isZernioConfigured } from '$lib/server/channels/zernio';
 import {
@@ -15,11 +15,11 @@ export const POST: RequestHandler = async (event) => {
 	const body = await parseValidatedBody(event.request, channelActionSchema);
 	const { org } = await assertApiOrgMember(event, body.organizationId, user.id, 'admin');
 
-	if (isOrganizationSubscriptionBlocked(org)) {
+	if (!canOrganizationConnectRealChannels(org)) {
 		return json(
 			{
-				error: 'Tu trial o suscripción requiere regularización antes de conectar canales.',
-				code: 'SUBSCRIPTION_INACTIVE'
+				error: 'Activa tu plan ($9 USD/canal/mes) en Configuración → Plan para conectar canales reales.',
+				code: 'SUBSCRIPTION_REQUIRED'
 			},
 			{ status: 402 }
 		);
