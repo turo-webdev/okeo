@@ -8,7 +8,7 @@
 	<title>Política de Privacidad — okeo</title>
 	<meta
 		name="description"
-		content="Política de privacidad, manejo de datos, aislamiento multi-tenant y proceso de eliminación de datos en Okeo."
+		content="Política de privacidad, protección de datos y proceso de eliminación de datos en Okeo."
 	/>
 	<link rel="canonical" href="https://okeo.ai/privacidad" />
 </svelte:head>
@@ -47,7 +47,7 @@
 		<p class="mt-4 text-sm leading-relaxed text-ink-secondary sm:text-base">
 			En <strong class="font-medium text-ink">Okeo</strong> (<code class="text-xs">okeo.ai</code> y
 			<code class="text-xs">app.okeo.ai</code>) protegemos la información de tu negocio, de tu equipo
-			y de los clientes que atiendes a través de nuestros canales conectados.
+			y de los clientes que atiendes a través de tus canales conectados.
 		</p>
 
 		<div class="mt-10 space-y-8 border-t border-border pt-8 text-sm leading-relaxed text-ink-secondary">
@@ -67,21 +67,22 @@
 				<ul class="list-disc space-y-1.5 pl-5">
 					<li>
 						<strong class="font-medium text-ink">Cuenta y autenticación:</strong> nombre, correo electrónico,
-						identificador de inicio de sesión y pertenencia a workspaces.
+						identificador de inicio de sesión y pertenencia a espacios de trabajo.
 					</li>
 					<li>
-						<strong class="font-medium text-ink">Contenido de tu workspace (CRM e IA):</strong> contactos,
-						oportunidades en el pipeline, notas internas, historial de conversaciones, archivos multimedia
-						y documentos o URLs que subas a tu Base de Conocimiento.
+						<strong class="font-medium text-ink">Contenido de tu espacio de trabajo:</strong> contactos,
+						oportunidades comerciales, notas internas, historial de conversaciones, archivos multimedia y
+						documentos o enlaces que subas a tu Base de Conocimiento.
 					</li>
 					<li>
-						<strong class="font-medium text-ink">Canales conectados (Meta / Zernio):</strong> identificadores
-						de página, cuenta profesional de Instagram o número de WhatsApp Business, así como mensajes
-						entrantes, estados de entrega y archivos adjuntos necesarios para operar la bandeja compartida.
+						<strong class="font-medium text-ink">Canales conectados:</strong> identificadores de página,
+						cuenta profesional de Instagram o número de WhatsApp Business, así como mensajes entrantes,
+						estados de entrega y archivos adjuntos necesarios para operar la bandeja compartida.
 					</li>
 					<li>
-						<strong class="font-medium text-ink">Facturación:</strong> Stripe procesa directamente tus pagos,
-						tarjetas y datos fiscales. Okeo no almacena números completos de tarjetas ni códigos CVV.
+						<strong class="font-medium text-ink">Facturación:</strong> los pagos, tarjetas y datos
+						fiscales se procesan directamente a través de nuestra pasarela de pagos certificada. Okeo no
+						almacena números completos de tarjetas ni códigos CVV.
 					</li>
 				</ul>
 			</section>
@@ -90,67 +91,59 @@
 				<h2 class="text-base font-semibold text-ink">3. Para qué usamos la información</h2>
 				<p>Utilizamos los datos exclusivamente para operar el servicio contratado:</p>
 				<ul class="list-disc space-y-1.5 pl-5">
-					<li>Mostrar y responder conversaciones de WhatsApp, Instagram y Messenger desde tu Inbox.</li>
-					<li>Organizar leads, etapas y seguimiento comercial dentro de tu workspace.</li>
+					<li>Mostrar y responder conversaciones de WhatsApp, Instagram y Messenger desde tu bandeja.</li>
+					<li>Organizar leads, etapas y seguimiento comercial dentro de tu espacio de trabajo.</li>
 					<li>
-						Generar sugerencias o respuestas de IA (en modo Copiloto o Automático) utilizando únicamente
-						el historial de la conversación y la Base de Conocimiento de tu propio workspace.
+						Generar sugerencias o respuestas de asistencia inteligente utilizando únicamente el historial
+						de la conversación y la Base de Conocimiento de tu propio espacio de trabajo.
 					</li>
 					<li>Gestionar suscripciones, facturación, enlaces de acceso y notificaciones de invitación.</li>
 				</ul>
 			</section>
 
 			<section class="space-y-2.5">
-				<h2 class="text-base font-semibold text-ink">4. Proveedores de infraestructura y subencargados</h2>
+				<h2 class="text-base font-semibold text-ink">4. Proveedores de servicio y encargados de tratamiento</h2>
 				<p>
-					Para entregar el servicio utilizamos proveedores especializados bajo acuerdos de confidencialidad
-					y seguridad: <strong class="font-medium text-ink">Supabase</strong> (base de datos, autenticación y
-					almacenamiento privado), <strong class="font-medium text-ink">Cloudflare</strong> (red, Workers y
-					colas), <strong class="font-medium text-ink">Zernio / Meta</strong> (conectividad oficial de
-					WhatsApp, Instagram y Messenger), <strong class="font-medium text-ink">Google Gemini</strong>
-					(procesamiento de lenguaje y multimedia para el asistente), <strong class="font-medium text-ink">Stripe</strong>
-					(pagos y portal fiscal) y <strong class="font-medium text-ink">Resend</strong> (correos transaccionales).
+					Para operar la plataforma trabajamos con proveedores especializados sujetos a acuerdos de
+					confidencialidad y seguridad, incluyendo proveedores de infraestructura en la nube y
+					almacenamiento de datos, servicios de conectividad de mensajería, servicios de procesamiento de
+					inteligencia artificial bajo demanda, pasarelas de pago certificadas y servicios de correo
+					transaccional.
 				</p>
 				<p>
 					Okeo <strong class="font-medium text-ink">no vende</strong> datos personales ni comerciales a terceros,
-					ni mezcla o entrena respuestas de un workspace usando la información de otro workspace.
+					ni mezcla o entrena respuestas de un espacio de trabajo usando la información de otro cliente.
 				</p>
 			</section>
 
 			<section class="space-y-2.5">
-				<h2 class="text-base font-semibold text-ink">5. Seguridad y aislamiento multi-tenant</h2>
+				<h2 class="text-base font-semibold text-ink">5. Seguridad y aislamiento de la información</h2>
 				<ul class="list-disc space-y-1.5 pl-5">
-					<li>Todo el tráfico viaja cifrado mediante HTTPS/TLS.</li>
+					<li>Cifrado en tránsito mediante HTTPS/TLS en toda la plataforma.</li>
+					<li>Aislamiento estricto por organización y control de acceso por rol dentro de cada equipo.</li>
 					<li>
-						Cada workspace está aislado en base de datos mediante políticas de seguridad a nivel de fila
-						(Row Level Security) verificadas por organización y rol.
+						Almacenamiento privado para archivos adjuntos y documentos con accesos temporales autenticados.
 					</li>
-					<li>
-						Los archivos adjuntos y documentos de conocimiento se guardan en buckets privados accesibles
-						únicamente con URLs firmadas temporales tras verificar permisos en servidor.
-					</li>
-					<li>
-						Todos los webhooks entrantes (Meta/Zernio y Stripe) se validan mediante firma criptográfica
-						antes de procesarse.
-					</li>
+					<li>Validación criptográfica de las notificaciones externas recibidas por la plataforma.</li>
 				</ul>
 			</section>
 
 			<section class="space-y-2.5">
-				<h2 class="text-base font-semibold text-ink">6. Retención y eliminación de datos (Meta / WhatsApp / IG)</h2>
+				<h2 class="text-base font-semibold text-ink">6. Retención y eliminación de datos</h2>
 				<p>
-					Conservamos la información de tu workspace mientras mantengas una cuenta activa o sea necesario
-					para cumplir obligaciones legales o fiscales.
+					Conservamos la información de tu espacio de trabajo mientras mantengas una cuenta activa o sea
+					necesario para cumplir obligaciones legales o fiscales.
 				</p>
 				<p>
-					Puedes desconectar un canal en cualquier momento desde <code class="text-xs">Configuración → Canales</code>
-					en <code class="text-xs">app.okeo.ai</code>. Si deseas solicitar la eliminación completa de tu cuenta,
-					workspace o datos asociados a un número de WhatsApp o cuenta de Meta, envía un correo a
+					Puedes desconectar cualquier canal en cualquier momento desde
+					<code class="text-xs">Configuración → Canales</code> en <code class="text-xs">app.okeo.ai</code>.
+					Si deseas solicitar la eliminación completa de tu cuenta, espacio de trabajo o datos asociados a un
+					número de WhatsApp o cuenta vinculada, envía un correo a
 					<a href="mailto:privacidad@okeo.ai" class="font-medium text-ink underline underline-offset-2">
 						privacidad@okeo.ai
 					</a>
-					indicando el nombre de tu workspace y correo de administrador; atenderemos la solicitud en un plazo
-					máximo de 15 días hábiles.
+					indicando el nombre de tu espacio de trabajo y correo de administrador; atenderemos la solicitud en un
+					plazo máximo de 15 días hábiles.
 				</p>
 			</section>
 

@@ -46,28 +46,27 @@
 		</h1>
 		<p class="mt-4 text-sm leading-relaxed text-ink-secondary sm:text-base">
 			Estos términos regulan el acceso y uso de la plataforma <strong class="font-medium text-ink">Okeo</strong>
-			(<code class="text-xs">okeo.ai</code> y <code class="text-xs">app.okeo.ai</code>). Al crear un workspace
-			o iniciar sesión aceptas estas condiciones.
+			(<code class="text-xs">okeo.ai</code> y <code class="text-xs">app.okeo.ai</code>). Al crear un espacio de
+			trabajo o iniciar sesión aceptas estas condiciones.
 		</p>
 
 		<div class="mt-10 space-y-8 border-t border-border pt-8 text-sm leading-relaxed text-ink-secondary">
 			<section class="space-y-2.5">
 				<h2 class="text-base font-semibold text-ink">1. Descripción del servicio</h2>
 				<p>
-					Okeo es una plataforma SaaS de CRM y mensajería omnicanal que permite centralizar conversaciones
-					de WhatsApp Business, Instagram y Messenger, organizar oportunidades en un pipeline comercial y
+					Okeo es una plataforma de CRM y mensajería omnicanal que permite centralizar conversaciones de
+					WhatsApp Business, Instagram y Messenger, organizar oportunidades en un pipeline comercial y
 					asistir respuestas con inteligencia artificial basada en el conocimiento propio de cada negocio.
 				</p>
 			</section>
 
 			<section class="space-y-2.5">
-				<h2 class="text-base font-semibold text-ink">2. Cuentas, workspaces y equipo</h2>
+				<h2 class="text-base font-semibold text-ink">2. Cuentas, espacios de trabajo y equipo</h2>
 				<p>
-					El propietario y administradores de cada workspace son responsables de mantener la confidencialidad
-					de su acceso, asignar roles adecuados (<code class="text-xs">owner</code>,
-					<code class="text-xs">admin</code>, <code class="text-xs">agent</code>,
-					<code class="text-xs">viewer</code>) y gestionar las invitaciones de su equipo. Los workspaces
-					incluyen usuarios ilimitados sin costo por asiento.
+					El propietario y administradores de cada espacio de trabajo son responsables de mantener la
+					confidencialidad de su acceso, asignar roles adecuados (propietario, administrador, agente o solo
+					lectura) y gestionar las invitaciones de su equipo. Los espacios de trabajo incluyen usuarios
+					ilimitados sin costo adicional por asiento.
 				</p>
 			</section>
 
@@ -80,9 +79,8 @@
 						de Facebook vinculadas.
 					</li>
 					<li>
-						Cumplir las políticas comerciales y de mensajería de Meta (WhatsApp Business Platform, Instagram
-						y Messenger), incluyendo el consentimiento de tus contactos y el respeto a la ventana de
-						atención de 24 horas.
+						Cumplir las políticas comerciales y de mensajería aplicables de cada plataforma conectada,
+						incluyendo el consentimiento de tus contactos y el respeto a las ventanas vigentes de atención.
 					</li>
 					<li>
 						No utilizar Okeo para enviar spam, fraude, contenido ilegal, suplantación de identidad ni
@@ -96,8 +94,8 @@
 				<p>
 					Okeo ofrece modos <strong class="font-medium text-ink">Copiloto</strong> (sugerencia revisada
 					por tu equipo) y <strong class="font-medium text-ink">Automático</strong>. Eres responsable de la
-					exactitud de los documentos, precios, políticas y URLs que cargues en tu Base de Conocimiento, así
-					como de supervisar las respuestas enviadas a tus clientes. Cuando una persona responde desde el
+					exactitud de los documentos, precios, políticas y enlaces que cargues en tu Base de Conocimiento,
+					así como de supervisar las respuestas enviadas a tus clientes. Cuando una persona responde desde el
 					Inbox o desde el dispositivo conectado, Okeo pausa automáticamente la respuesta automática en esa
 					conversación.
 				</p>
@@ -114,8 +112,8 @@
 					</li>
 					<li>
 						<strong class="font-medium text-ink">Facturación recurrente:</strong> los pagos se procesan de
-						forma mensual a través de Stripe. Aumentar o reducir la cantidad de canales contratados aplica
-						prorrateos automáticos de Stripe según el ciclo vigente.
+						forma mensual a través de nuestra pasarela de pagos segura. Aumentar o reducir la cantidad de
+						canales contratados aplica los ajustes prorrateados correspondientes según el ciclo vigente.
 					</li>
 					<li>
 						<strong class="font-medium text-ink">Cancelación e impago:</strong> puedes cancelar en cualquier
@@ -130,8 +128,8 @@
 			<section class="space-y-2.5">
 				<h2 class="text-base font-semibold text-ink">6. Propiedad de los datos y del software</h2>
 				<p>
-					Todo el contenido, mensajes, contactos y documentos que subas a tu workspace siguen siendo de tu
-					exclusiva propiedad. La plataforma Okeo, su diseño, marca y código fuente son propiedad intelectual
+					Todo el contenido, mensajes, contactos y documentos que subas a tu espacio de trabajo siguen siendo
+					de tu exclusiva propiedad. La plataforma Okeo, su diseño, marca y software son propiedad intelectual
 					de sus titulares.
 				</p>
 			</section>
@@ -139,11 +137,12 @@
 			<section class="space-y-2.5">
 				<h2 class="text-base font-semibold text-ink">7. Disponibilidad, limitación de responsabilidad y contacto</h2>
 				<p>
-					Trabajamos para mantener la plataforma disponible y segura de forma continua, aunque integraciones de
-					terceros (Meta, WhatsApp, Instagram, Stripe o proveedores de IA) pueden presentar intermitencias
-					ajenas a nuestro control. En la máxima medida permitida por la ley, la responsabilidad total de
-					Okeo por cualquier reclamación relacionada con el servicio no excederá el monto efectivamente pagado
-					por el cliente durante los últimos tres (3) meses previos al evento.
+					Trabajamos para mantener la plataforma disponible y segura de forma continua, aunque integraciones
+					de terceros (como plataformas de mensajería, procesadores de pago o servicios externos de
+					inteligencia artificial) pueden presentar intermitencias ajenas a nuestro control. En la máxima
+					medida permitida por la ley, la responsabilidad total de Okeo por cualquier reclamación relacionada
+					con el servicio no excederá el monto efectivamente pagado por el cliente durante los últimos tres
+					(3) meses previos al evento.
 				</p>
 				<p>
 					Para soporte o consultas legales escribe a
