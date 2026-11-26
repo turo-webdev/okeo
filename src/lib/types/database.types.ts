@@ -128,6 +128,83 @@ export type Database = {
           },
         ]
       }
+      channel_connect_sessions: {
+        Row: {
+          completed_at: string | null
+          connected_channel_id: string | null
+          created_at: string
+          encrypted_provider_payload: string | null
+          error_code: string | null
+          expires_at: string
+          id: string
+          organization_id: string
+          platform: string
+          status: string
+          target_channel_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          connected_channel_id?: string | null
+          created_at?: string
+          encrypted_provider_payload?: string | null
+          error_code?: string | null
+          expires_at: string
+          id: string
+          organization_id: string
+          platform: string
+          status?: string
+          target_channel_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          connected_channel_id?: string | null
+          created_at?: string
+          encrypted_provider_payload?: string | null
+          error_code?: string | null
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          platform?: string
+          status?: string
+          target_channel_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_connect_sessions_connected_channel_fk"
+            columns: ["organization_id", "connected_channel_id"]
+            isOneToOne: false
+            referencedRelation: "connected_channels"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "channel_connect_sessions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_connect_sessions_target_channel_fk"
+            columns: ["organization_id", "target_channel_id"]
+            isOneToOne: false
+            referencedRelation: "connected_channels"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "channel_connect_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connected_channels: {
         Row: {
           created_at: string

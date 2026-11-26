@@ -188,10 +188,22 @@
 				return 'Alcanzaste el límite de canales contratados en este workspace.';
 			case 'oauth_cancelled':
 				return 'Cancelaste la autorización con la red social antes de completarla.';
+			case 'oauth_denied':
+				return 'No se otorgaron los permisos necesarios para conectar la cuenta.';
+			case 'no_facebook_pages':
+				return 'No recibimos Páginas de Facebook disponibles. Asegúrate de seleccionar al menos una Página durante el permiso de Meta.';
+			case 'session_expired':
+				return 'La sesión de conexión expiró por seguridad. Inicia el proceso nuevamente.';
+			case 'connect_session_invalid':
+				return 'La sesión de conexión ya fue utilizada o no es válida. Intenta conectar de nuevo.';
+			case 'platform_mismatch':
+				return 'La cuenta autorizada no coincide con el canal seleccionado.';
 			case 'account_not_found':
 				return 'No encontramos la cuenta seleccionada. Intenta conectarla de nuevo.';
 			case 'missing_account_id':
 				return 'No se recibió el identificador de la cuenta conectada.';
+			case 'provider_verify_failed':
+			case 'provider_error':
 			case 'zernio_verify_failed':
 				return 'No pudimos verificar la cuenta conectada. Intenta de nuevo.';
 			default:

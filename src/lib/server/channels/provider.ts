@@ -8,6 +8,33 @@ export interface ExternalChannelAccount {
 	status: 'active' | 'disconnected' | 'error';
 }
 
+export interface ExternalFacebookPage {
+	pageId: string;
+	name: string;
+	username?: string;
+	category?: string;
+}
+
+export interface GetConnectUrlInput {
+	profileId: string;
+	platform: Platform;
+	redirectUri: string;
+	state?: string;
+	reconnectAccountId?: string;
+	headless?: boolean;
+	oauthAppId?: string;
+	signupHosted?: boolean;
+	brandName?: string;
+	primaryColor?: string;
+	language?: 'es' | 'en' | 'pt-BR';
+}
+
+export interface SelectedChannelAccount {
+	externalAccountId: string;
+	displayName: string;
+	handleOrPhone: string;
+}
+
 export interface SendMessageInput {
 	externalAccountId: string;
 	externalThreadId: string;
@@ -61,13 +88,18 @@ export class WebhookSignatureError extends Error {
  */
 export interface ChannelProvider {
 	createProfile(orgName: string): Promise<{ profileId: string }>;
-	getConnectUrl(params: {
+	getConnectUrl(params: GetConnectUrlInput): Promise<{ authUrl: string }>;
+	listPendingFacebookPages(params: {
 		profileId: string;
-		platform: Platform;
-		redirectUri: string;
-		state: string;
-		reconnectAccountId?: string;
-	}): Promise<{ authUrl: string }>;
+		tempToken: string;
+	}): Promise<{ pages: ExternalFacebookPage[]; truncated: boolean }>;
+	selectPendingFacebookPage(params: {
+		profileId: string;
+		pageId: string;
+		tempToken: string;
+		userProfile: { id?: string; name?: string; profilePicture?: string };
+		scopes?: string;
+	}): Promise<SelectedChannelAccount>;
 	listAccounts(profileId: string): Promise<ExternalChannelAccount[]>;
 	disconnectAccount(externalAccountId: string): Promise<void>;
 	sendMessage(params: SendMessageInput): Promise<{ externalMessageId: string; sentAt: string }>;

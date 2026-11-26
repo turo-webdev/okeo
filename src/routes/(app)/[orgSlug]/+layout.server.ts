@@ -13,7 +13,8 @@ export const load: LayoutServerLoad = async ({ params, locals, url }) => {
 		listUserOrganizations(auth.userId, locals)
 	]);
 	if (!user) {
-		throw redirect(302, '/login');
+		const nextPath = `${url.pathname}${url.search}`;
+		throw redirect(302, `/login?next=${encodeURIComponent(nextPath)}`);
 	}
 
 	let matched = organizations.find((o) => o.slug === params.orgSlug);

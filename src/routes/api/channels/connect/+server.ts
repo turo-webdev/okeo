@@ -2,7 +2,12 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { assertApiOrgMember, parseValidatedBody, requireApiSession } from '$lib/server/auth';
 import { canOrganizationConnectRealChannels } from '$lib/server/billing/plans';
-import { getOAuthStateSecret, signOAuthState } from '$lib/server/channels/state';
+import { getChannelConnectOptions } from '$lib/server/channels/config';
+import {
+	createChannelConnectSession,
+	failChannelConnectSession
+} from '$lib/server/channels/connect-sessions';
+import { getOAuthStateSecret } from '$lib/server/channels/state';
 import { getChannelProvider, isZernioConfigured } from '$lib/server/channels/zernio';
 import {
 	listWorkspaceChannels,
@@ -45,9 +50,8 @@ export const POST: RequestHandler = async (event) => {
 	const liveMode = isZernioConfigured();
 	const provider = getChannelProvider();
 
-	let stateSecret: string;
 	try {
-		stateSecret = getOAuthStateSecret();
+		getOAuthStateSecret();
 	} catch (err) {
 		console.error('[channels/connect] OAuth state secret missing:', err);
 		return json(
@@ -74,31 +78,36 @@ export const POST: RequestHandler = async (event) => {
 	}
 
 	const platform = body.platform ?? existingChannel?.platform ?? 'whatsapp';
-	const state = await signOAuthState(
-		{
-			organizationId: org.id,
-			userId: user.id,
-			platform,
-			channelId: existingChannel?.id,
-			nonce: crypto.randomUUID(),
-			exp: Date.now() + 10 * 60_000
-		},
-		stateSecret
-	);
+	const connectSession = await createChannelConnectSession({
+		organizationId: org.id,
+		userId: user.id,
+		platform,
+		targetChannelId: existingChannel?.id
+	});
 
 	try {
-		const redirectUri = `${event.url.origin}/api/channels/connect/callback?state=${encodeURIComponent(state)}`;
+		const redirectUri = `${event.url.origin}/api/channels/connect/callback?sid=${encodeURIComponent(connectSession.id)}`;
+		const connectOptions = getChannelConnectOptions(platform);
 		const { authUrl } = await provider.getConnectUrl({
 			profileId,
 			platform,
 			redirectUri,
-			state,
-			reconnectAccountId: existingChannel?.external_account_id
+			reconnectAccountId: existingChannel?.external_account_id,
+			...connectOptions
 		});
 
-		return json({ ok: true, authUrl, mode: liveMode ? 'zernio' : 'mock' });
+		return json({
+			ok: true,
+			authUrl,
+			sessionId: connectSession.id,
+			mode: liveMode ? 'zernio' : 'mock'
+		});
 	} catch (err) {
 		console.error('[channels/connect] getConnectUrl failed:', err);
+		await failChannelConnectSession({
+			sessionId: connectSession.id,
+			errorCode: 'connect_url_failed'
+		}).catch(() => {});
 		return json(
 			{
 				error: 'No se pudo generar el enlace de conexión del canal. Intenta de nuevo.'

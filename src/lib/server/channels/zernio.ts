@@ -6,7 +6,10 @@ import {
 	WebhookSignatureError,
 	type ChannelProvider,
 	type ExternalChannelAccount,
+	type ExternalFacebookPage,
+	type GetConnectUrlInput,
 	type NormalizedWebhookEvent,
+	type SelectedChannelAccount,
 	type SendMessageInput
 } from './provider';
 import {
@@ -47,20 +50,14 @@ export class ZernioChannelProvider implements ChannelProvider {
 		});
 		const profileId = res.data?.profile?._id;
 		if (!profileId) {
-			throw new Error('Zernio no devolvió un profileId válido al crear el perfil');
+			throw new Error('El proveedor no devolvió un profileId válido al crear el perfil');
 		}
 		return { profileId };
 	}
 
-	async getConnectUrl(params: {
-		profileId: string;
-		platform: Platform;
-		redirectUri: string;
-		state: string;
-		reconnectAccountId?: string;
-	}): Promise<{ authUrl: string }> {
+	async getConnectUrl(params: GetConnectUrlInput): Promise<{ authUrl: string }> {
 		const redirectUrl = new URL(params.redirectUri);
-		if (!redirectUrl.searchParams.has('state')) {
+		if (params.state && !redirectUrl.searchParams.has('state')) {
 			redirectUrl.searchParams.set('state', params.state);
 		}
 
@@ -70,12 +67,27 @@ export class ZernioChannelProvider implements ChannelProvider {
 			!params.reconnectAccountId!.startsWith('acc_ws_') &&
 			!params.reconnectAccountId!.startsWith('acc_ct_');
 
+		const useHeadlessFacebook = Boolean(params.headless && params.platform === 'facebook');
+		const useHostedWhatsApp = Boolean(
+			!useHeadlessFacebook && params.signupHosted && params.platform === 'whatsapp'
+		);
+
 		const res = await this.client.connect.getConnectUrl({
 			path: { platform: params.platform },
 			query: {
 				profileId: params.profileId,
 				redirect_url: redirectUrl.toString(),
-				...(isRealZernioAccountId ? { reconnectAccountId: params.reconnectAccountId } : {})
+				...(isRealZernioAccountId ? { reconnectAccountId: params.reconnectAccountId } : {}),
+				...(params.oauthAppId ? { oauthAppId: params.oauthAppId } : {}),
+				...(useHeadlessFacebook ? { headless: true } : {}),
+				...(useHostedWhatsApp
+					? {
+							signup: 'hosted',
+							...(params.brandName ? { brandName: params.brandName } : {}),
+							...(params.primaryColor ? { primaryColor: params.primaryColor } : {}),
+							...(params.language ? { language: params.language } : {})
+						}
+					: {})
 			}
 		});
 
@@ -91,7 +103,68 @@ export class ZernioChannelProvider implements ChannelProvider {
 			return { authUrl: redirectUrl.toString() };
 		}
 
-		throw new Error('Zernio no devolvió authUrl para conectar el canal');
+		throw new Error('No se recibió authUrl para conectar el canal');
+	}
+
+	async listPendingFacebookPages(params: {
+		profileId: string;
+		tempToken: string;
+	}): Promise<{ pages: ExternalFacebookPage[]; truncated: boolean }> {
+		const res = await this.client.connect.facebook.listFacebookPages({
+			query: { profileId: params.profileId },
+			headers: { 'X-Temp-Token': params.tempToken }
+		});
+		if (res.error && !res.data) {
+			throw new Error('No se pudieron consultar las páginas de Facebook');
+		}
+
+		const pages: ExternalFacebookPage[] = [];
+		for (const page of res.data?.pages ?? []) {
+			if (!page.id || !page.name) continue;
+			pages.push({
+				pageId: page.id,
+				name: page.name,
+				...(page.username ? { username: page.username } : {}),
+				...(page.category ? { category: page.category } : {})
+			});
+		}
+
+		return {
+			pages,
+			truncated: Boolean(res.data?.truncated)
+		};
+	}
+
+	async selectPendingFacebookPage(params: {
+		profileId: string;
+		pageId: string;
+		tempToken: string;
+		userProfile: { id?: string; name?: string; profilePicture?: string };
+		scopes?: string;
+	}): Promise<SelectedChannelAccount> {
+		const res = await this.client.connect.facebook.selectFacebookPage({
+			body: {
+				profileId: params.profileId,
+				pageId: params.pageId,
+				tempToken: params.tempToken,
+				userProfile: params.userProfile,
+				...(params.scopes ? { scopes: params.scopes } : {})
+			}
+		});
+		const account = res.data?.account;
+		if (!account?.accountId) {
+			throw new Error('No se pudo completar la selección de la página de Facebook');
+		}
+		const displayName =
+			account.selectedPageName?.trim() || account.displayName?.trim() || 'Messenger';
+		const handleOrPhone =
+			account.username?.trim() || account.selectedPageName?.trim() || account.accountId;
+
+		return {
+			externalAccountId: account.accountId,
+			displayName,
+			handleOrPhone
+		};
 	}
 
 	async listAccounts(profileId: string): Promise<ExternalChannelAccount[]> {

@@ -291,14 +291,21 @@ erDiagram
 
 ## 4. Flujos Críticos del Sistema
 
-### Flujo A: Onboarding "Conecta tus redes y listo" (OAuth seguro)
+### Flujo A: Conexión Segura de Canales (OAuth / Headless / Branded Hosted)
 
-1. **Paso 1 (Workspace):** Usuario ingresa nombre, rubro e idioma. El servidor crea en Zernio un perfil (`createProfile`) y en Supabase la fila en `organizations` (`subscription_status = 'trialing'`, `channel_slots = 1`, `trial_ends_at = now() + 14 days`), `organization_members` (`owner`), `ai_settings`, `pipelines` + `pipeline_stages` por defecto, y el primer `org_usage_periods` (100 respuestas IA).
-2. **Paso 2 (OAuth Meta/WhatsApp):**
-   - El usuario elige IG, Messenger o WhatsApp (con aviso breve de requisitos: cuenta Profesional IG conectada a Página FB; WhatsApp requiere Embedded Signup de Meta y facturación de plantillas directamente en su WABA).
-   - `POST /api/channels/connect` valida rol `admin+`, que la org no esté `past_due`/`expired`, y que `canales activos < channel_slots`.
-   - Genera un `state` firmado con **HMAC-SHA256** que incluye `{ organizationId, userId, nonce, exp }` (expira en 10 min) y solicita `authUrl` vía `ChannelProvider.getConnectUrl`.
-   - En `GET /api/channels/connect/callback`, el servidor verifica firma y expiración del `state`, confirma membresía actual del `userId`, llama `listAccounts(profileId)` para verificar que el `accountId` pertenece al perfil de la org y **verifica que no exista en otro workspace** (si `UNIQUE (provider, external_account_id)` pertenece a otra org, rechaza con error claro sin reasignar la cuenta).
+1. **Paso 1 (Workspace):** Usuario ingresa nombre, rubro e idioma. El servidor crea en el proveedor un perfil (`createProfile`) y en Supabase la fila en `organizations` (`channel_slots = 1`, `billing_mode`), `organization_members` (`owner`), `ai_settings`, `pipelines` + `pipeline_stages` por defecto, y el primer `org_usage_periods`.
+2. **Paso 2 (Sesión de Conexión + OAuth Meta/WhatsApp):**
+   - El usuario elige Messenger (`facebook`), Instagram (`instagram`) o WhatsApp (`whatsapp`) desde Configuración → Canales (solo workspaces con suscripción activa `billing_mode = 'per_channel'` y `subscription_status = 'active'` pueden conectar canales reales).
+   - `POST /api/channels/connect` valida rol `admin+`, suscripción activa y que `canales activos < channel_slots`. Crea una sesión corta (`channel_connect_sessions`, TTL 10 minutos, ID opaco `cs_...`) vinculada a `organization_id`, `user_id`, `platform` y `target_channel_id` opcional.
+   - Usa un `redirect_url` corto (`https://app.okeo.ai/api/channels/connect/callback?sid=cs_...`) para respetar los límites de longitud de OAuth y consulta `src/lib/server/channels/config.ts` (solo servidor) para flags por canal y `oauthAppId` opcionales:
+     - **Messenger (`facebook`):** solicita `headless: true` para traer el selector de Página dentro de la interfaz de Okeo.
+     - **WhatsApp (`whatsapp`):** solicita `signup: 'hosted'` con branding Okeo (`brandName`, `primaryColor`, `language: 'es'`).
+     - **Instagram (`instagram`):** flujo directo (`instagram_login`) con `oauthAppId` opcional cuando esté configurado.
+   - En `GET /api/channels/connect/callback`:
+     - Valida `sid`, expiración de `channel_connect_sessions`, membresía `admin+` y coincidencia de usuario cuando hay sesión activa.
+     - Si es flujo **headless (`step=select_page`)**: cifra `tempToken`, `connectToken`, `userProfile` (decodificando doble percent-encoding) y `scopes` con **AES-256-GCM** en `encrypted_provider_payload`, transiciona atómicamente `initiated → pending_selection` y redirige a `/[orgSlug]/settings/channels/connect/[sessionId]` (con retorno seguro vía `/login?next=...` si expiró la cookie SSR, sin exponer tokens en URL).
+     - En `/[orgSlug]/settings/channels/connect/[sessionId]`, el usuario elige su Página de Facebook dentro de Okeo; al confirmar, el servidor reclama atómicamente `pending_selection → completing` (anti-replay/doble clic), re-verifica membresía, suscripción y cupos disponibles, llama `selectPendingFacebookPage` (nunca expone tokens al navegador), registra el canal en `connected_channels` (rechazando colisiones entre orgs), marca `completed` y limpia `encrypted_provider_payload`.
+     - Si es **completado directo (`accountId`)**: reclama `initiated → completing`, verifica propiedad del `accountId` y plataforma vía `listAccounts(profileId)` y guarda en `connected_channels`.
 
 ### Flujo B: Webhook entrante + Debounce con Lease + Multimodal + Kanban
 
@@ -516,8 +523,9 @@ okeo/
 | :--- | :--- | :--- |
 | `POST /api/webhooks/zernio` | Firma `X-Zernio-Signature` (`HMAC-SHA256` con `timingSafeEqual`) | Ingesta rápida e idempotente (`message.received`, ecos externos, estados de entrega, `account.disconnected`); encola job en CF Queue con `delaySeconds: 4`. |
 | `POST /api/webhooks/stripe` | Firma `Stripe-Signature` + `stripe_webhook_events` | Sincroniza `subscription_status`, `channel_slots`, fechas de ciclo y `org_usage_periods` de forma idempotente. |
-| `POST /api/channels/connect` | Sesión + rol `admin+` + `organizationId` | Verifica `channel_slots` disponibles y estado de suscripción, genera `state` HMAC y devuelve `authUrl` de Zernio. |
-| `GET /api/channels/connect/callback` | Sesión + `state` HMAC válido | Verifica firma/expiración y pertenencia del `accountId`, evita colisiones entre orgs y registra/reactiva el canal en `connected_channels`. |
+| `POST /api/channels/connect` | Sesión + rol `admin+` + `organizationId` | Verifica `channel_slots` disponibles y suscripción activa, crea sesión en `channel_connect_sessions` y devuelve `authUrl` con `sid` corto. |
+| `GET /api/channels/connect/callback` | Sesión + `sid` válido en `channel_connect_sessions` | Procesa retorno OAuth (incluyendo `step=select_page` headless cifrando token en servidor) o verifica `accountId` directo y redirige al selector o Ajustes. |
+| `POST /[orgSlug]/settings/channels/connect/[sessionId]?/selectPage` | Sesión + rol `admin+` + coincidencia de usuario/org | Reclama atómicamente la sesión `pending_selection`, completa la selección de Página Facebook en el proveedor y registra el canal. |
 | `POST /api/channels/disconnect` | Sesión + rol `admin+` + `organizationId` | Desconecta la cuenta en Zernio vía `ChannelProvider` y marca `status = 'disconnected'`. |
 | `POST /api/messages/send` | Sesión + rol `agent+` + `organizationId` | Verifica ventana de 24h de Meta, envía mensaje manual vía `ChannelProvider`, persiste en `messages` y pausa la IA (`ai_paused = true`). |
 | `GET /api/media/signed-url` | Sesión + rol `viewer+` + `organizationId` | Verifica que la ruta del archivo pertenezca al prefijo `{organization_id}/` y genera una Signed URL temporal del bucket privado. |
